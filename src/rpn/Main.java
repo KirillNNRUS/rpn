@@ -3,7 +3,7 @@ package rpn;
 import java.util.*;
 
 class ExpressionParser {
-  private static String operators = "+-*/";
+  private static String operators = "+-*/^";
   private static String delimiters = "() " + operators;
   public static boolean flag = true;
 
@@ -24,20 +24,19 @@ class ExpressionParser {
   }
 
   private static boolean isFunction(String token) {
-    if (token.equals("sqrt") || token.equals("cube") || token.equals("pow10")) return true;
-    return false;
+    return token.equals("sqrt") || token.equals("cube") || token.equals("pow10");
   }
 
   private static int priority(String token) {
     if (token.equals("(")) return 1;
     if (token.equals("+") || token.equals("-")) return 2;
-    if (token.equals("*") || token.equals("/")) return 3;
+    if (token.equals("*") || token.equals("/") || token.equals("^")) return 3;
     return 4;
   }
 
   public static List<String> parse(String infix) {
-    List<String> postfix = new ArrayList<String>();
-    Deque<String> stack = new ArrayDeque<String>();
+    List<String> postfix = new ArrayList<>();
+    Deque<String> stack = new ArrayDeque<>();
     StringTokenizer tokenizer = new StringTokenizer(infix, delimiters, true);
     String prev = "";
     String curr = "";
@@ -105,7 +104,10 @@ class Ideone {
         stack.push(tmp * tmp * tmp);
       } else if (x.equals("pow10")) stack.push(Math.pow(10, stack.pop()));
       else if (x.equals("+")) stack.push(stack.pop() + stack.pop());
-      else if (x.equals("-")) {
+      else if (x.equals("^")) {
+        Double b = stack.pop(), a = stack.pop();
+        stack.push(Math.pow(a, b));
+      } else if (x.equals("-")) {
         Double b = stack.pop(), a = stack.pop();
         stack.push(a - b);
       } else if (x.equals("*")) stack.push(stack.pop() * stack.pop());
@@ -120,7 +122,7 @@ class Ideone {
 
   public static void main(String[] args) {
     Scanner in = new Scanner(System.in);
-    String s = in.nextLine();
+    String s = "(-7)+ ((5 + 0.3) - ((-7) + (-3)))";
     ExpressionParser n = new ExpressionParser();
     List<String> expression = n.parse(s);
     boolean flag = n.flag;
