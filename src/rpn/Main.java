@@ -98,31 +98,38 @@ class Ideone {
   public static Double calc(List<String> postfix) {
     Deque<Double> stack = new ArrayDeque<>();
     for (String x : postfix) {
-      if (x.equals("sqrt")) stack.push(Math.sqrt(stack.pop()));
-      else if (x.equals("cube")) {
+      if (x.equals("sqrt")) {
+        stack.push(Math.sqrt(stack.pop()));
+      } else if (x.equals("cube")) {
         Double tmp = stack.pop();
         stack.push(tmp * tmp * tmp);
-      } else if (x.equals("pow10")) stack.push(Math.pow(10, stack.pop()));
-      else if (x.equals("+")) stack.push(stack.pop() + stack.pop());
-      else if (x.equals("^")) {
+      } else if (x.equals("pow10")) {
+        stack.push(Math.pow(10, stack.pop()));
+      } else if (x.equals("+")) {
+        stack.push(stack.pop() + stack.pop());
+      } else if (x.equals("^")) {
         Double b = stack.pop(), a = stack.pop();
         stack.push(Math.pow(a, b));
       } else if (x.equals("-")) {
         Double b = stack.pop(), a = stack.pop();
         stack.push(a - b);
-      } else if (x.equals("*")) stack.push(stack.pop() * stack.pop());
-      else if (x.equals("/")) {
+      } else if (x.equals("*")) {
+        stack.push(stack.pop() * stack.pop());
+      } else if (x.equals("/")) {
         Double b = stack.pop(), a = stack.pop();
         stack.push(a / b);
-      } else if (x.equals("u-")) stack.push(-stack.pop());
-      else stack.push(Double.valueOf(x));
+      } else if (x.equals("u-")) {
+        stack.push(-stack.pop());
+      } else {
+        stack.push(Double.valueOf(x));
+      }
     }
     return stack.pop();
   }
 
   public static void main(String[] args) {
     Scanner in = new Scanner(System.in);
-    String s = "(-7)+ ((5 + 0.3) - ((-7) + (-3)))";
+    String s = "(-7)^-3+ ((5 + 0.3) - ((-7) + (-3)))";
     ExpressionParser n = new ExpressionParser();
     List<String> expression = n.parse(s);
     boolean flag = n.flag;
