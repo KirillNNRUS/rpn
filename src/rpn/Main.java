@@ -23,10 +23,6 @@ class ExpressionParser {
     return false;
   }
 
-  private static boolean isFunction(String token) {
-    return token.equals("sqrt") || token.equals("cube") || token.equals("pow10");
-  }
-
   private static int priority(String token) {
     if (token.equals("(")) return 1;
     if (token.equals("+") || token.equals("-")) return 2;
@@ -35,101 +31,90 @@ class ExpressionParser {
   }
 
   public static List<String> parse(String infix) {
-    List<String> postfix = new ArrayList<>();
-    Deque<String> stack = new ArrayDeque<>();
+    List<String> listValue = new ArrayList<>();
+    Deque<String> stackOperators = new ArrayDeque<>();
     StringTokenizer tokenizer = new StringTokenizer(infix, delimiters, true);
     String prev = "";
-    String curr = "";
+    String curr;
     while (tokenizer.hasMoreTokens()) {
       curr = tokenizer.nextToken();
       if (!tokenizer.hasMoreTokens() && isOperator(curr)) {
         System.out.println("Некорректное выражение.");
         flag = false;
-        return postfix;
+        return listValue;
       }
       if (curr.equals(" ")) continue;
-      if (isFunction(curr)) stack.push(curr);
       else if (isDelimiter(curr)) {
-        if (curr.equals("(")) stack.push(curr);
+        if (curr.equals("(")) stackOperators.push(curr);
         else if (curr.equals(")")) {
-          while (!stack.peek().equals("(")) {
-            postfix.add(stack.pop());
-            if (stack.isEmpty()) {
+          while (!stackOperators.peek().equals("(")) {
+            listValue.add(stackOperators.pop());
+            if (stackOperators.isEmpty()) {
               System.out.println("Скобки не согласованы.");
               flag = false;
-              return postfix;
+              return listValue;
             }
           }
-          stack.pop();
-          if (!stack.isEmpty() && isFunction(stack.peek())) {
-            postfix.add(stack.pop());
-          }
+          stackOperators.pop();
         } else {
           if (curr.equals("-") && (prev.equals("") || (isDelimiter(prev) && !prev.equals(")")))) {
-            // унарный минус
             curr = "u-";
           } else {
-            while (!stack.isEmpty() && (priority(curr) <= priority(stack.peek()))) {
-              postfix.add(stack.pop());
+            while (!stackOperators.isEmpty() && (priority(curr) <= priority(stackOperators.peek()))) {
+              listValue.add(stackOperators.pop());
             }
           }
-          stack.push(curr);
+          stackOperators.push(curr);
         }
 
       } else {
-        postfix.add(curr);
+        listValue.add(curr);
       }
       prev = curr;
     }
 
-    while (!stack.isEmpty()) {
-      if (isOperator(stack.peek())) postfix.add(stack.pop());
+    while (!stackOperators.isEmpty()) {
+      if (isOperator(stackOperators.peek())) listValue.add(stackOperators.pop());
       else {
         System.out.println("Скобки не согласованы.");
         flag = false;
-        return postfix;
+        return listValue;
       }
     }
-    return postfix;
+    return listValue;
   }
 }
 
 class Ideone {
-  public static Double calc(List<String> postfix) {
-    Deque<Double> stack = new ArrayDeque<>();
-    for (String x : postfix) {
-      if (x.equals("sqrt")) {
-        stack.push(Math.sqrt(stack.pop()));
-      } else if (x.equals("cube")) {
-        Double tmp = stack.pop();
-        stack.push(tmp * tmp * tmp);
-      } else if (x.equals("pow10")) {
-        stack.push(Math.pow(10, stack.pop()));
-      } else if (x.equals("+")) {
-        stack.push(stack.pop() + stack.pop());
+  public static Double calc(List<String> value) {
+    Deque<Double> stackOperators = new ArrayDeque<>();
+    for (String x : value) {
+      if (x.equals("+")) {
+        stackOperators.push(stackOperators.pop() + stackOperators.pop());
       } else if (x.equals("^")) {
-        Double b = stack.pop(), a = stack.pop();
-        stack.push(Math.pow(a, b));
+        Double b = stackOperators.pop(), a = stackOperators.pop();
+        stackOperators.push(Math.pow(a, b));
       } else if (x.equals("-")) {
-        Double b = stack.pop(), a = stack.pop();
-        stack.push(a - b);
+        Double b = stackOperators.pop(), a = stackOperators.pop();
+        stackOperators.push(a - b);
       } else if (x.equals("*")) {
-        stack.push(stack.pop() * stack.pop());
+        stackOperators.push(stackOperators.pop() * stackOperators.pop());
       } else if (x.equals("/")) {
-        Double b = stack.pop(), a = stack.pop();
-        stack.push(a / b);
+        Double b = stackOperators.pop(), a = stackOperators.pop();
+        stackOperators.push(a / b);
       } else if (x.equals("u-")) {
-        stack.push(-stack.pop());
+        stackOperators.push(-stackOperators.pop());
       } else {
-        stack.push(Double.valueOf(x));
+        stackOperators.push(Double.valueOf(x));
       }
     }
-    return stack.pop();
+    return stackOperators.pop();
   }
 
   public static void main(String[] args) {
     Scanner in = new Scanner(System.in);
-    String s = "(-7)^-3+ ((5 + 0.3) - ((-7) + (-3)))";
+//    String s = "( -7 ) ^ - 3 + ( ( 5 + 0.3 ) - ( (-7) + (-3) ) )";
+    String s = "78.1 / 3";
     ExpressionParser n = new ExpressionParser();
     List<String> expression = n.parse(s);
     boolean flag = n.flag;
