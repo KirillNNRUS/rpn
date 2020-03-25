@@ -81,9 +81,9 @@ doc/api/
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
 # User-specific stuff
-.idea/**/tasks.xml
-.idea/**/dictionaries
-.idea/**/shelf
+./idea/*
+.idea/*
+*.iml
 
 # Sensitive or high-churn files
 .idea/**/dataSources/
